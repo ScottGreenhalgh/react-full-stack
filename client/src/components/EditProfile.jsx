@@ -7,13 +7,14 @@ export default function EditProfile() {
     profile_img,
     displayname
   ) => {
+    const token = sessionStorage.getItem("authToken");
     const response = await fetch(`${HOST}/profile?action=update`, {
       method: "POST",
       headers: {
+        Authorization: `Bearer ${token}`,
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        username,
         background_url,
         profile_img,
         displayname,

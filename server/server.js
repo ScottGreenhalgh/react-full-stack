@@ -2,6 +2,8 @@ import express, { response } from "express";
 import cors from "cors";
 import pg from "pg";
 import dotenv from "dotenv";
+import bcrypt from "bcryptjs";
+import jwt from "jsonwebtoken";
 
 const app = express();
 app.use(cors());
@@ -16,9 +18,15 @@ app.get("/", function (request, response) {
 });
 
 app.post("/profile", async function (request, response) {
-  const { username, background_url, profile_img, displayname } = request.body;
+  const { background_url, profile_img, displayname } = request.body;
   const { action } = request.query;
+  // decode token
+  const token = request.headers.authorization.split(" ")[1];
+  const decoded = jwt.verify(token, process.env.JWT_SECRET);
+  const username = decoded.username;
   console.log(request.query);
+  console.log(`Profile request from: ${username}`);
+  // check if username is present
   if (!username) {
     return response.status(401).json({ error: "Username not provided" });
   }
@@ -79,6 +87,11 @@ app.post("/profile", async function (request, response) {
 app.post("/login", async function (request, response) {
   const { username, password } = request.body;
   const { action } = request.query;
+  // sign identifier token
+  const token = jwt.sign({ username }, process.env.JWT_SECRET, {
+    expiresIn: "1h",
+  });
+  // check if both username and password are present
   if (!username || !password) {
     return response
       .status(401)
@@ -87,9 +100,13 @@ app.post("/login", async function (request, response) {
   try {
     // register logic
     if (action === "register") {
+      // hash password so plain text isn't stored in the db
+      const saltRounds = 10;
+      const hashedPassword = await bcrypt.hash(password, saltRounds);
+
       const results = await db.query(
         `INSERT INTO login (username, password) VALUES ($1, $2)`,
-        [username, password]
+        [username, hashedPassword]
       );
       response
         .status(200)
@@ -103,13 +120,16 @@ app.post("/login", async function (request, response) {
       if (results.rows.length === 0) {
         return response.status(404).json({ error: "User not found" });
       }
+      // compare stored password to given password
       const storedHashedPassword = results.rows[0].password;
       const isPasswordMatch = await bcrypt.compare(
         password,
         storedHashedPassword
       );
       if (isPasswordMatch) {
-        return response.status(200).json({ message: "Login sucessful" });
+        return response
+          .status(200)
+          .json({ message: "Login sucessful", token: token });
       } else {
         return response.status(401).json({ error: "Incorrect password" });
       }

@@ -1,32 +1,35 @@
-import { useContext } from "react";
-import bcrypt from "bcryptjs";
-import { LoginContext } from "../context/LoginProvider";
+import { useState } from "react";
 
 const HOST = import.meta.env.VITE_HOST;
 
 export default function Login() {
-  const { username, setUsername, password, setPassword } =
-    useContext(LoginContext);
+  const [username, setUsername] = useState("");
+  const [password, setPassword] = useState("");
+  const [error, setError] = useState("");
 
   const handleLogin = async (event) => {
     event.preventDefault();
-    const saltRounds = 10;
-    const hashedPassword = await bcrypt.hash(password, saltRounds);
+    setError("");
     const response = await fetch(`${HOST}/login?action=login`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
       },
-      body: JSON.stringify({ username, password: hashedPassword }),
+      body: JSON.stringify({ username, password }),
     });
+    //const { token } = await response.json();
     const responseData = await response.json();
     console.log(`From the server (login): `, responseData);
+    sessionStorage.setItem("authToken", responseData.token);
     if (response.ok) {
-      console.log("Login successful", responseData);
       // handle login success
+      setUsername("");
+      setPassword("");
+      console.log("Login successful", responseData.message);
     } else {
-      console.log("Login failed", responseData.error);
       // handle login fail
+      console.log("Login failed", responseData.error);
+      setError(`Login failed: ${responseData.error}`);
     }
   };
 
@@ -48,6 +51,7 @@ export default function Login() {
         placeholder="Enter your password"
         aria-label="enter your password"
       />
+      {error && <p className="error-message">{error}</p>}
       <button
         type="submit"
         className="submit-button"

@@ -1,13 +1,14 @@
 const HOST = import.meta.env.VITE_HOST;
 
 export default function Profile() {
-  const fetchProfile = async (username) => {
+  const fetchProfile = async () => {
+    const token = sessionStorage.getItem("authToken");
     const response = await fetch(`${HOST}/profile?action=fetch`, {
       method: "POST",
       headers: {
+        Authorization: `Bearer ${token}`,
         "Content-Type": "application/json",
       },
-      body: JSON.stringify({ username }),
     });
     const data = await response.json();
     if (response.ok) {
