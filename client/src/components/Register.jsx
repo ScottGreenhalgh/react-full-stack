@@ -14,22 +14,29 @@ export default function Register() {
     // check password in both fields matches
     if (!(password === password2)) {
       setUsername("");
-      return;
+      return; // handle return here later -------------
     }
     // hash password so plain text isn't stored in the db
     const saltRounds = 10;
     const hashedPassword = await bcrypt.hash(password, saltRounds);
     // Send hashedPassword to backend for storage
-    const response = await fetch(HOST + "/login", {
-      method: "PUT",
+    const response = await fetch(`${HOST}/login?action=register`, {
+      method: "POST",
       headers: {
         "Content-Type": "application/json",
       },
-      body: JSON.stringify({ username, hashedPassword }), // send hashedPassword
+      body: JSON.stringify({ username, password: hashedPassword }),
     });
     // recieve response
     const responseData = await response.json();
-    console.log(`From the server (login): `, responseData);
+    console.log(`From the server (register): `, responseData);
+    if (response.ok) {
+      console.log("Registration successful", responseData);
+      // handle registration success
+    } else {
+      console.log("Registration failed", responseData.error);
+      // handle registration fail
+    }
   };
 
   return (

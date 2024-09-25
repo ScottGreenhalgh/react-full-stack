@@ -1,27 +1,32 @@
-import { useState } from "react";
+import { useContext } from "react";
 import bcrypt from "bcryptjs";
+import { LoginContext } from "../context/LoginProvider";
 
 const HOST = import.meta.env.VITE_HOST;
 
 export default function Login() {
-  const [username, setUsername] = useState("");
-  const [password, setPassword] = useState("");
+  const { username, setUsername, password, setPassword } =
+    useContext(LoginContext);
 
   const handleLogin = async (event) => {
     event.preventDefault();
-    const data = { password };
-    const storedHashedPassword = await fetch(HOST + "/login", {
+    const saltRounds = 10;
+    const hashedPassword = await bcrypt.hash(password, saltRounds);
+    const response = await fetch(`${HOST}/login?action=login`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
       },
-      body: JSON.stringify(data),
-    }); /* Fetch from backend */
-    const isMatch = await bcrypt.compare(password, storedHashedPassword);
-    if (isMatch) {
-      // Login successful
+      body: JSON.stringify({ username, password: hashedPassword }),
+    });
+    const responseData = await response.json();
+    console.log(`From the server (login): `, responseData);
+    if (response.ok) {
+      console.log("Login successful", responseData);
+      // handle login success
     } else {
-      // Incorrect password
+      console.log("Login failed", responseData.error);
+      // handle login fail
     }
   };
 
