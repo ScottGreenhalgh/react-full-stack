@@ -1,3 +1,9 @@
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
 :root {
   font-family: Inter, system-ui, Avenir, Helvetica, Arial, sans-serif;
   line-height: 1.5;
@@ -5,7 +11,23 @@
 
   color-scheme: light dark;
   color: rgba(255, 255, 255, 0.87);
-  background-color: #242424;
+  background: linear-gradient(
+    153deg,
+    /* Dark Charcoal */ rgba(29, 29, 29, 0.996),
+    /* Gunmetal Blue */ rgba(44, 62, 80, 0.904),
+    /* Deep Purple */ rgba(58, 43, 93, 0.927),
+    /* Jet Black */ rgba(18, 18, 18, 0.992),
+    /* Dark Charcoal  */ rgba(29, 29, 29, 0.996)
+  );
+  background-size: 100%;
+  background-position: center;
+  background-repeat: no-repeat;
+  background-attachment: fixed;
+  animation: smoothHorizontalShift 14s linear infinite alternate;
+  overflow-x: hidden;
+  display: flex;
+  flex-direction: column;
+  height: 100svh;
 
   font-synthesis: none;
   text-rendering: optimizeLegibility;

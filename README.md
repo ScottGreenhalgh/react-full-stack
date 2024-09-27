@@ -29,6 +29,8 @@ const saltRounds = 10;
 const hashedPassword = await bcrypt.hash(password, saltRounds);
 ```
 
+The amount of saltRounds determins the complexity of the password hashing. Increasing this to 12 or even 14 would signficantly increase the complexity of the hash and can be used in situations where security is incredibly important, however more compute is required to complete the operation. Given my usage 10 appears to be a happy medium between security and performance. Any less than 10 appears to produce a fairly insecure hash.
+
 Initially I had this under the client because I believe that sending a non-hashed password over the network isn't a great idea. However taking this approach gave the the following warning in the console:
 
 ```js
@@ -37,7 +39,7 @@ bcryptjs.js?v=ff64cdd0:12 Module "crypto" has been externalized for browser comp
 
 I then did some googling to see if there was a safe method of sending passwords over the network, and the answer I found was HTTPS. It seems that HTTPS encrypts data that is sent, meaning that intercepting the data mid transfer wouldn't reveal this data. With my worries put to bed, I simply moved my hashing logic to the server side.
 
-### Initial Issues
+### Session Validation
 
 It became quite apparent relatively early on that the approach I was taking was not ideal. When submitting forms to the database the data was retained in memory thanks to the useState. This became an issue since the fields were not emptying after submission. This was a relatively easy fix since all I needed to do was call the function associate with the useState and assign it the value of (""). This is where it got relatively complicated. My initial thought was to retain this username and password combination within a useContext to allow this information to be transferable to other components. For example when accessing the profile, I would use this value from useContext to query the database and fetch the profile assocaiated. If I clear the setUsername field, this would no longer be possible. I needed to find an alternative method. My initial thought here was to look at using local storage, but two immediate issues came to mind when I considered this approach. The first was that local storage can easily be modified any time, meaning I could just change the username to anyones profile and gain full access to the customisations. I could use an accompanying password to validate this but that brings me to the second problem. Storing passwords here in plain text didn't seem like a good idea.
 
@@ -59,4 +61,84 @@ const decoded = jwt.verify(token, process.env.JWT_SECRET);
 const username = decoded.username;
 ```
 
-This obtains grabs the username from the key, and allows me to access that location in the database without giving the client the ability to tamper with the value.
+This obtains grabs the username from the key, and allows me to access that location in the database without giving the client the ability to tamper with the value. The token can still be viewed at any time under the browser dev tools >> Application >> Session storage >> web url >> Key >> authToken, however this value is hashed and unreadable to a user. One thing I've considered is returning a token upon registration, however for now I've opted to keep the registration independant from the login. This pushes the user to login after registration. I feel this has a better flow, and gets the user familiar with the login system post registration.
+
+After a little while of playing around with this, I needed to restructure a little of what I was doing. I brought back the LoginProvider.jsx and modified its contents. Here I will query a new endpoint called /session, which will have the dedicated task of validating my login token. Once the token is validated, I can then store this token and use it when viewing the profile or in any other future instance where I need profile specific information.
+
+### React Routes
+
+With the data seemingly entering into the table as I would expect I turned my attention to making the client side connected. Instead of just throwing each component onto the page under main, I needed to segment my pages based on the 4 main components I had. I would also create 2 additonal pages, one at the root "/" and another to handle any route that didn't match what I've defined "\*". To to this I used `react-router-dom`, a node module that gives me all the functionality to create routes and link them together. I started by placing each individual route inside App.jsx and then sourrounded this with the element Routes. After doing this I got an error and I was confused for a good few minutes. It looked perfectly correct but I must've been forgetting something simple. Then I remembered that these routes don't work without BrowserRouter sourrounding the Routes. I added this into main.jsx just inside StrictMode. With all the routes defined correctly, I could now manually navidate to each individual page using the defined suffix.
+
+Next I needed an elegant way for the user to navigate between these pages. I created a Header.jsx component and used Link to create teathers to the routes with clickable links. These work similarly to "<a>" tags in html. From here I wanted to sort out redirects. I started by going under the (response.ok) check and redirecting the user over to "/profile" using useNavigate.
+
+Using useNavigate from react router, I am able to redirect the user to different pages when certain criteria has been met. For my usage, I wanted the page to redirect on a form submission. Under the the login and editprofile form submission I would have the page redirect to the profile page. Under the register form submission I would have the page redirect to the login page. This creates an intuitive system that takes the user to the next step of the process without leaving them to work it out themselves.
+
+From here I needed a way of conditionally rendering the different elements in the header to reflect what the user could or couldn't do in their current position. To do this I would use my previously created LoginProvider which checks if the token is validated. Using truthy, falsy on this value I can dictate which routes to render under the Header.jsx at any given time. Next I needed to handle situations where the user attempted to manually visit the "/profile" page despite not being logged in and have them redirected back to the home page. To do this I created a ProtectedRoute.jsx which I would encapsulate around the routes I wanted protected. In here I would once again use truthy, falsy to determin if the currentLogin is validated by a valid token. From here I would either return the child element or return a redirect to the homepage. This essentially creates protected routes, making these routes restricted to users not logged in.
+
+### Styling
+
+With the data being gathered correctly and all the pages/redirects handling correctly, it is time to style the page. I focused my attention on formatting Profile.jsx since this was currently just dumping two fairly large images onto the page. to remedy this, I added a class to the container element gave it a definative size in pixels. This meant that no matter what size the page was it wouldn't change shape. I did the same with the elements inside of this container. From here I assigned positon relative to the container and position absolute to each of the children. This allowed me to position them exactly where I wanted them inside this container. Once I was happy with this I moved on.
+
+Next I took a look at the Header. This was fixed at the top of every page and contained links to each of the other pages. I wanted to give it a small transparancy to the background of this header so the main background can show through. Using past projects as a reference, I grabbed some styling for the background and transparent elements and placed them inside both App.css and Header.css. I then handled @media queries to ensure that when utilising the login system on mobile it would scale nicely. In some instances I needed multiple media queries to ensure even the smallest phone size of 320px wide would be able to see all of the content.
+
+Before taking a look at styling for either Login, Register or EditProfile, I first had a look at all three of the forms I had been using and made sure the autocomplete attributes given aligned with the standard. I checked this through https://developer.mozilla.org/en-US/docs/Web/HTML/Attributes/autocomplete. I then made sure each of the inputs had a name and className. Once this was done I could begin styling the different components. From here I contained my forms inside div elements and set the display to flex. for both the container and the form. I then applied a background to the container and rounded the edges for an elegant look. From here I added colouring to the form elements and modified the flex direction for mobile displays.
+
+## Requirements
+
+There is one important requirement for this project which I did not include. This was .map(). The reason for this is due to the fact there was no data stored in my database that needed to be looped over, since all the data gathered was in a one-to-one relation. To show my understanding of this element despite not utilising the feature during the project, I will give an example of how I would have used it:
+
+```jsx
+return (
+  <div>
+    {data.map((mapMsg) => (
+      <IndividualMessages key={mapMsg.id} mapMsg={mapMsg} />
+    ))}
+  </div>
+);
+```
+
+Using the above, .map would take the data object (which would first be obtained through a fetch), similarly to forEach a variable can be given any name to represent the looped over data. This is identical to using data.message[i] or data.username[i] in a standard for loop. This variable is passed down to the component IndividualMessages as a prop where the individual objects can be referenced using the dot notation. In this instance, IndividualMessages would return something like the following:
+
+```js
+return (
+  <div id={mapMsg.id}>
+    <p
+      id={`message-${mapMsg.id}`}
+    >{`${mapMsg.message} - ${mapMsg.username}`}</p>
+  </div>
+);
+```
+
+The above takes the identity key and assigns that as a unique id. Since this is essentially a for loop, if there were 10 elements to loop over, each div would be given a unique identifier assigned as the div id. In this 10 element example, 10 unique divs would be created, each containing 10 unique <p> tag elements containing the corresponding message and username.
+
+The above mapping assumes that the object given contains {id, message, username}.
+
+Besides this the following requirements were completed:
+
+- Client created using react
+
+- Server created using express. Featuring a GET endpoint, and 3 POST endpoints.
+
+- 3 React forms were using under the components Login, Register and EditProfile.
+
+- Multiple pages were used. Each form has a unique page, same with home and profile.
+
+- a PostgreSQL database is used to hold both tables used through Supabase.
+
+Additional features include:
+
+- The pages dynamically change with react-router-dom, but can also be navigated manually with the Link elements in the Header.
+
+- Utilising bcrypt to hash passwords on the server.
+
+- Utilising jsonwebtoken to validate login sessions.
+
+- Utilising endpoint queries (using request.query) to dictate endpoint operation.
+
+- Error handling on both client and server all potential problems (that I could find).
+
+## Overview
+
+While many of the potential stretch requirements for this submission were not completed I believe I've excelled in other areas. I managed to create a fully functioning login system which allows profile customisation. I got stuck in the rabbit hole for quite a while trying to get user authentication working, trying to manage errors, display relevant information to the client as informative errors, and make the flow of the page as user friendly as possible.
+
+To expand on this basic login later, I can add additonal content to either under Home ("/") or create additonal pages that can utilise the unique login system. One possible thought is to create a forum that uses the users display name to create posts in various categories, utilising another database to contain this data and output it to the page. Using one database entry to dictate the page, another for the user and another containing a title and message. Then potentially reference ids to the post which can be filtered through to obtain other user comments for that post.

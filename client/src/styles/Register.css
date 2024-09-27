@@ -1,0 +1,51 @@
+.reg-container {
+  display: flex;
+  flex-direction: column;
+
+  background-color: #8878a557;
+  border-radius: 5rem;
+
+  padding: 2rem;
+}
+
+.reg-title {
+  margin-bottom: 2rem;
+}
+
+.reg-form {
+  display: flex;
+  flex-direction: row;
+}
+
+.reg-input-field {
+  margin-right: 0.5rem;
+  width: 15rem;
+  border-radius: 1rem;
+  border: white solid 0px;
+  filter: drop-shadow(0 0 3px #00000063);
+  color: #000;
+  background-color: #a89ae6;
+  text-align: center;
+}
+
+.reg-input-field:hover {
+  filter: drop-shadow(0 0 5px #00000080);
+}
+
+@media (max-width: 960px) {
+  .reg-form {
+    flex-direction: column;
+  }
+
+  .reg-input-field {
+    width: 20rem;
+    padding: 0.6rem 1.2rem;
+    margin-bottom: 0.5rem;
+  }
+}
+
+@media (max-width: 401px) {
+  .reg-input-field {
+    width: 14rem;
+  }
+}

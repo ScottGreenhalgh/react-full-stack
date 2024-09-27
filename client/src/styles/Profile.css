@@ -1,0 +1,124 @@
+.profile-container {
+  display: flex;
+  flex-direction: column;
+
+  position: relative;
+
+  background-color: #8878a557;
+  height: 500px;
+  width: 800px;
+  border-radius: 5rem;
+
+  z-index: 1;
+}
+
+.profile-image {
+  height: 150px;
+  width: 150px;
+  border-radius: 50%;
+  border: solid rgba(155, 126, 207, 0.536);
+
+  position: absolute;
+  top: 14rem;
+  left: 5rem;
+
+  z-index: 3;
+}
+
+.background-image {
+  height: 300px;
+  width: 800px;
+
+  border-top-left-radius: 5rem;
+  border-top-right-radius: 5rem;
+
+  position: absolute;
+  top: 0;
+  z-index: 2;
+}
+
+.profile-displayname {
+  position: absolute;
+  top: 19rem;
+  left: 17rem;
+  z-index: 3;
+}
+
+.profile-username {
+  position: absolute;
+  top: 22rem;
+  left: 17rem;
+  z-index: 3;
+}
+
+@media (max-width: 767px) {
+  .profile-container {
+    height: 250px;
+    width: 400px;
+    border-radius: 2.5rem;
+  }
+
+  .profile-image {
+    height: 75px;
+    width: 75px;
+
+    top: 7rem;
+    left: 2.5rem;
+  }
+
+  .background-image {
+    height: 150px;
+    width: 400px;
+
+    border-top-left-radius: 2.5rem;
+    border-top-right-radius: 2.5rem;
+  }
+
+  .profile-displayname {
+    font-size: 1rem;
+    top: 9.5rem;
+    left: 8.5rem;
+  }
+
+  .profile-username {
+    font-size: 0.75rem;
+    top: 11rem;
+    left: 8.5rem;
+  }
+}
+
+@media (max-width: 401px) {
+  .profile-container {
+    height: 220px;
+    width: 320px;
+    border-radius: 2.5rem;
+  }
+
+  .profile-image {
+    height: 65px;
+    width: 65px;
+
+    top: 5.5rem;
+    left: 2rem;
+  }
+
+  .background-image {
+    height: 120px;
+    width: 320px;
+
+    border-top-left-radius: 2rem;
+    border-top-right-radius: 2rem;
+  }
+
+  .profile-displayname {
+    font-size: 0.75rem;
+    top: 7.5rem;
+    left: 7.5rem;
+  }
+
+  .profile-username {
+    font-size: 0.65rem;
+    top: 9rem;
+    left: 7.5rem;
+  }
+}
