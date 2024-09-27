@@ -92,8 +92,8 @@ export default function Register() {
         >
           Register
         </button>
-        {error && <p className="error-message">{error}</p>}
       </form>
+      {error && <p className="error-message">{error}</p>}
     </div>
   );
 }

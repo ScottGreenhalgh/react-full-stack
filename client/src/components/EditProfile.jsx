@@ -115,8 +115,8 @@ export default function EditProfile() {
         >
           Save
         </button>
-        {error && <p className="error-message">{error}</p>}
       </form>
+      {error && <p className="error-message">{error}</p>}
     </div>
   );
 }
