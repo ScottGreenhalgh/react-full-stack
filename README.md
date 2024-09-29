@@ -83,6 +83,10 @@ Next I took a look at the Header. This was fixed at the top of every page and co
 
 Before taking a look at styling for either Login, Register or EditProfile, I first had a look at all three of the forms I had been using and made sure the autocomplete attributes given aligned with the standard. I checked this through https://developer.mozilla.org/en-US/docs/Web/HTML/Attributes/autocomplete. I then made sure each of the inputs had a name and className. Once this was done I could begin styling the different components. From here I contained my forms inside div elements and set the display to flex. for both the container and the form. I then applied a background to the container and rounded the edges for an elegant look. From here I added colouring to the form elements and modified the flex direction for mobile displays.
 
+### Refactoring
+
+With the styling complete and everything looking and opperating basically exactly how I wanted, it was time to refactor the server to use express router. This would clean up the extremely large server file that I currently have and break the different operations into smaller parts. I'm not entirely sure what a good naming convention is for the routes, so I just settled on /api. This is probably not the best name to give it, but describes what it is, so it's probably fine. From here I broke my three endpoints into two controllers, one for login and one for profile. I then used a routes.js file to handle which endpoint sends the traffic to where and tethered this back to my server.js through `app.use("/api", routes)`.
+
 ## Requirements
 
 There is one important requirement for this project which I did not include. This was .map(). The reason for this is due to the fact there was no data stored in my database that needed to be looped over, since all the data gathered was in a one-to-one relation. To show my understanding of this element despite not utilising the feature during the project, I will give an example of how I would have used it:
@@ -136,6 +140,8 @@ Additional features include:
 - Utilising endpoint queries (using request.query) to dictate endpoint operation.
 
 - Error handling on both client and server all potential problems (that I could find).
+
+- Utilising express routes.
 
 ## Overview
 

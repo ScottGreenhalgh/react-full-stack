@@ -27,7 +27,7 @@ export default function EditProfile() {
     event.preventDefault();
     const token = sessionStorage.getItem("authToken");
     try {
-      const response = await fetch(`${HOST}/profile?action=update`, {
+      const response = await fetch(`${HOST}/api/profile?action=update`, {
         method: "POST",
         headers: {
           Authorization: `Bearer ${token}`,

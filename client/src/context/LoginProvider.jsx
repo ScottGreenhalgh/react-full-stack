@@ -9,9 +9,10 @@ export function LoginProvider({ children }) {
 
   const fetchSession = async () => {
     const token = sessionStorage.getItem("authToken");
+    //console.log(token);
     if (token) {
       try {
-        const response = await fetch(`${HOST}/session`, {
+        const response = await fetch(`${HOST}/api/session`, {
           method: "POST",
           headers: {
             Authorization: `Bearer ${token}`,

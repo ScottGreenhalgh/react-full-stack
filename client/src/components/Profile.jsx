@@ -14,7 +14,7 @@ export default function Profile() {
   const fetchProfile = async () => {
     const token = sessionStorage.getItem("authToken");
     try {
-      const response = await fetch(`${HOST}/profile?action=fetch`, {
+      const response = await fetch(`${HOST}/api/profile?action=fetch`, {
         method: "POST",
         headers: {
           Authorization: `Bearer ${token}`,

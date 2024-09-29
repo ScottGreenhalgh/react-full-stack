@@ -21,7 +21,7 @@ export default function Register() {
     setError("");
     // send password to backend for storage
     try {
-      const response = await fetch(`${HOST}/login?action=register`, {
+      const response = await fetch(`${HOST}/api/login?action=register`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
