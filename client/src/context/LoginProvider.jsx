@@ -13,7 +13,7 @@ export function LoginProvider({ children }) {
     if (token) {
       try {
         const response = await fetch(`${HOST}/api/session`, {
-          method: "POST",
+          method: "GET",
           headers: {
             Authorization: `Bearer ${token}`,
             "Content-Type": "application/json",

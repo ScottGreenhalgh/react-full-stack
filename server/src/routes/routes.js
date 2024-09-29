@@ -12,4 +12,4 @@ routes.post("/login", loginHandler);
 routes.post("/profile", profileHandler);
 
 // Session route
-routes.post("/session", sessionHandler);
+routes.get("/session", sessionHandler);
